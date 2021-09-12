@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_clipboard_manager/flutter_clipboard_manager.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +25,67 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class StartPage extends StatelessWidget {
+class StartPage extends StatefulWidget {
+  @override
+  _StartPageState createState() => _StartPageState();
+}
+
+class _StartPageState extends State<StartPage> {
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
+  String shortUrl = "";
+  String value = "";
+  TextEditingController urlcontroller = TextEditingController();
+  getData() async {
+    var url = 'https://api.shrtco.de/v2/shorten?url=${urlcontroller.text}';
+    var response = await http.get(url);
+    var result = jsonDecode(response.body);
+    if (result['ok']) {
+      setState(() {
+        shortUrl = result['result']['short_link'];
+      });
+    } else {
+      print(response);
+    }
+  }
+
+  copy(String url) {
+    FlutterClipboardManager.copyToClipBoard(url).then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Shorted Url Copied!'),
+        duration: Duration(seconds: 1),
+      ));
+    });
+  }
+
+  buildRow(String data, bool original) {
+    return SingleChildScrollView(
+      child: original
+          ? Container(
+              alignment: Alignment.center,
+              child: Text(
+                data,
+              ))
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  data,
+                ),
+                ElevatedButton(
+                  onPressed: () => copy(shortUrl),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    minimumSize: Size(300, 40),
+                  ),
+                  child: Text('COPY!'),
+                ),
+              ],
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +143,10 @@ class StartPage extends StatelessWidget {
                       width: 300,
                       height: 40,
                       child: TextField(
+                        onChanged: (text) {
+                          value = "URL : " + text;
+                        },
+                        controller: urlcontroller,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(10.0),
@@ -95,17 +164,13 @@ class StartPage extends StatelessWidget {
                             hintText: 'Shorten a link here ...'),
                       ),
                     ),
-
-                    /// a little space between buttons
                     SizedBox(
                       height: 10,
                     ),
                     SizedBox(
                       width: 300,
                       child: ElevatedButton(
-                        onPressed: () {
-                          print("Button Click");
-                        },
+                        onPressed: getData,
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,
                           shape: RoundedRectangleBorder(
@@ -120,6 +185,22 @@ class StartPage extends StatelessWidget {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(13.0),
+            child: Container(
+              color: Colors.white,
+              width: double.infinity,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  buildRow(value, true),
+                  buildRow(shortUrl, false),
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );
