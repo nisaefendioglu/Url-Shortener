@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'URL Shortener',
       theme: ThemeData(
         primarySwatch: Colors.purple,
@@ -185,7 +186,6 @@ class _StartPageState extends State<StartPage> {
                       width: 300,
                       child: ElevatedButton(
                         onPressed: () async {
-                          print("Button Click");
                           await getData();
                           setState(() {
                             showCopyButton = true;
@@ -213,8 +213,11 @@ class _StartPageState extends State<StartPage> {
                 width: double.infinity,
                 child: Column(
                   children: [
-                    SizedBox(
-                      height: 10,
+                    Text(
+                      "Your URL Link",
+                      style: TextStyle(
+                        color: Color.fromRGBO(59, 48, 84, 1),
+                      ),
                     ),
                     buildRow(value, true),
                     buildRow(shortUrl, false),
