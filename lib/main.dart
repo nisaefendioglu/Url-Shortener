@@ -31,9 +31,20 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  bool visibilityTag = false;
+  void _changed(bool visibility, String field) {
+    setState(() {
+      if (field == "tag") {
+        visibilityTag = visibility;
+      }
+    });
+  }
+
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
   String shortUrl = "";
   String value = "";
+  String buttonText = "COPY!";
+  bool isChanged = true;
   TextEditingController urlcontroller = TextEditingController();
   getData() async {
     var url = 'https://api.shrtco.de/v2/shorten?url=${urlcontroller.text}';
@@ -49,12 +60,7 @@ class _StartPageState extends State<StartPage> {
   }
 
   copy(String url) {
-    FlutterClipboardManager.copyToClipBoard(url).then((value) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Shorted Url Copied!'),
-        duration: Duration(seconds: 1),
-      ));
-    });
+    FlutterClipboardManager.copyToClipBoard(url).then((value) {});
   }
 
   buildRow(String data, bool original) {
@@ -72,14 +78,21 @@ class _StartPageState extends State<StartPage> {
                   data,
                 ),
                 ElevatedButton(
-                  onPressed: () => copy(shortUrl),
+                  child: Text(buttonText),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.blue,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0)),
                     minimumSize: Size(300, 40),
                   ),
-                  child: Text('COPY!'),
+                  onPressed: () {
+                    copy(shortUrl);
+                    setState(() {
+                      if (isChanged == true) {
+                        buttonText = "COPIED!";
+                      }
+                    });
+                  },
                 ),
               ],
             ),
