@@ -60,3 +60,6 @@ import 'package:http/http.dart' as http;
 API used for link shortening in the project --> https://shrtco.de/docs/
 
 ## Screenshots of the project :
+
+![url_shortener](https://user-images.githubusercontent.com/48391281/132995715-7e3d4d69-c6a1-491e-ae1b-565366496471.jpeg)
+
