@@ -45,6 +45,7 @@ class _StartPageState extends State<StartPage> {
   String value = "";
   String buttonText = "COPY!";
   bool isChanged = true;
+  bool showCopyButton = false;
   TextEditingController urlcontroller = TextEditingController();
   getData() async {
     var url = 'https://api.shrtco.de/v2/shorten?url=${urlcontroller.text}';
@@ -183,7 +184,13 @@ class _StartPageState extends State<StartPage> {
                     SizedBox(
                       width: 300,
                       child: ElevatedButton(
-                        onPressed: getData,
+                        onPressed: () async {
+                          print("Button Click");
+                          await getData();
+                          setState(() {
+                            showCopyButton = true;
+                          });
+                        },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,
                           shape: RoundedRectangleBorder(
@@ -198,22 +205,23 @@ class _StartPageState extends State<StartPage> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(13.0),
-            child: Container(
-              color: Colors.white,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  buildRow(value, true),
-                  buildRow(shortUrl, false),
-                ],
+          if (showCopyButton)
+            Padding(
+              padding: const EdgeInsets.all(13.0),
+              child: Container(
+                color: Colors.white,
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10,
+                    ),
+                    buildRow(value, true),
+                    buildRow(shortUrl, false),
+                  ],
+                ),
               ),
-            ),
-          )
+            )
         ],
       ),
     );
